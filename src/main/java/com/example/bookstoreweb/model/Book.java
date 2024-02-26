@@ -20,5 +20,5 @@ public class Book {
     private String isbn;
     private BigDecimal price;
     private String description;
-    private String coverlmage;
+    private String coverImage;
 }
