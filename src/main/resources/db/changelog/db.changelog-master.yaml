@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/08-adding-roles-for-existing-users.yaml
   - include:
       file: db/changelog/changes/09-set-bcrypt-password.yaml
+  - include:
+      file: db/changelog/changes/10-adding-column-is_deleted-in-users-table.yaml
