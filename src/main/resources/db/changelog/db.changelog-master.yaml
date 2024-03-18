@@ -3,3 +3,19 @@ databaseChangeLog:
       file: db/changelog/changes/01-create-books-table.yaml
   - include:
       file: db/changelog/changes/02-create-users-table.yaml
+  - include:
+      file: db/changelog/changes/03-create-roles-table.yaml
+  - include:
+      file: db/changelog/changes/04-create-users_roles-table.yaml
+  - include:
+      file: db/changelog/changes/05-adding-users-in-table-users.yaml
+  - include:
+      file: db/changelog/changes/06-adding-roles-in-table-roles.yaml
+  - include:
+      file: db/changelog/changes/07-adding-foreign-keys-to-users-roles.yaml
+  - include:
+      file: db/changelog/changes/08-adding-roles-for-existing-users.yaml
+  - include:
+      file: db/changelog/changes/09-set-bcrypt-password.yaml
+  - include:
+      file: db/changelog/changes/10-adding-column-is_deleted-in-users-table.yaml
