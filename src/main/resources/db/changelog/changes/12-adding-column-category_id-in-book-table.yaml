@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: adding-column_category_id-in-book-table
+      author: mhorianin
+      changes:
+        - addColumn:
+            tableName: books
+            columns:
+              - column:
+                  name: category_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: books
+            baseColumnNames:
+              - category_id
+            referencedTableName: categories
+            referencedColumnNames:
+              - id
+            constraintName: fk_book_category_id

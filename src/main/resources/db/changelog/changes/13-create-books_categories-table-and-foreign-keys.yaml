@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-books_categories-table-and-foreign-keys
+      author: mhorianin
+      changes:
+        - createTable:
+            tableName: books_categories
+            columns:
+              - column:
+                  name: book_id
+                  type: bigint
+              - column :
+                  name: category_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: books_categories
+            baseColumnNames:
+              - book_id
+            referencedTableName: books
+            referencedColumnNames:
+              - id
+            constraintName: fk_book_id
+        - addForeignKeyConstraint:
+            baseTableName: books_categories
+            baseColumnNames:
+              - category_id
+            referencedTableName: categories
+            referencedColumnNames:
+              - id
+            constraintName: fk_category_id

@@ -19,3 +19,9 @@ databaseChangeLog:
       file: db/changelog/changes/09-set-bcrypt-password.yaml
   - include:
       file: db/changelog/changes/10-adding-column-is_deleted-in-users-table.yaml
+  - include:
+      file: db/changelog/changes/11-create-category-table.yaml
+  - include:
+      file: db/changelog/changes/12-adding-column-category_id-in-book-table.yaml
+  - include:
+      file: db/changelog/changes/13-create-books_categories-table-and-foreign-keys.yaml
