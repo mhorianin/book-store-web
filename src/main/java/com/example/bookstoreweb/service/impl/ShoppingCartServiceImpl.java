@@ -9,6 +9,7 @@ import com.example.bookstoreweb.exception.EntityNotFoundException;
 import com.example.bookstoreweb.mapper.ShoppingCartMapper;
 import com.example.bookstoreweb.model.CartItem;
 import com.example.bookstoreweb.model.ShoppingCart;
+import com.example.bookstoreweb.repository.BookRepository;
 import com.example.bookstoreweb.repository.CartItemRepository;
 import com.example.bookstoreweb.repository.ShoppingCartRepository;
 import com.example.bookstoreweb.service.ShoppingCartService;
@@ -25,6 +26,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final CartItemRepository cartItemRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final UserService userService;
+    private final BookRepository bookRepository;
 
     @Override
     public ShoppingCartDto getShoppingCartForUser(String email, Pageable pageable) {
@@ -36,6 +38,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart shoppingCart = findShoppingCartByUser(email);
         CartItem cartItem = shoppingCartMapper.toModel(requestDto);
         cartItem.setShoppingCart(shoppingCart);
+        cartItem.setBook(bookRepository.findById(cartItem.getBook().getId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                "Can't find cart item by id")
+                ));
 
         shoppingCart.getCartItems().add(cartItem);
 
