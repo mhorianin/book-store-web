@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: adding-column-cart_item_id-in-shopping_carts-table
+      author: mhorianin
+      changes:
+        - addColumn:
+            tableName: shopping_carts
+            columns:
+              - column:
+                  name: cart_item_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: shopping_carts
+            baseColumnNames: cart_item_id
+            referencedTableName: cart_item
+            referencedColumnNames: id
+            constraintName: fk_cart_item_shopping_cart
+            onDelete: CASCADE

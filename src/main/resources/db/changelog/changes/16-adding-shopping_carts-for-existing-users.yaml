@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-shopping_carts-for-existing-users
+      author: mhorianin
+      changes:
+        - insert:
+            tableName: shopping_carts
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+        - insert:
+            tableName: shopping_carts
+            columns:
+              - column:
+                  name: user_id
+                  value: 2
