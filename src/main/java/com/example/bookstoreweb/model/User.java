@@ -13,13 +13,15 @@ import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Data
+@Getter
+@Setter
 @Entity
 @SQLDelete(sql = "UPDATE books SET is_deleted = TRUE WHERE id = ?")
 @SQLRestriction("is_deleted = FALSE")

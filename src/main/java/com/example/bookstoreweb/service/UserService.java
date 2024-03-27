@@ -7,4 +7,6 @@ import com.example.bookstoreweb.exception.RegistrationException;
 public interface UserService {
     UserResponseDto register(UserRegistrationRequestDto registrationRequestDto)
             throws RegistrationException;
+
+    UserResponseDto getByEmail(String email);
 }
