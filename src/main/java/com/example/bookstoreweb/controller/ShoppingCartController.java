@@ -34,7 +34,7 @@ public class ShoppingCartController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping
     @Operation(summary = "Get shopping cart for user",
-            description = "Get a shopping cart for a specific user ")
+            description = "Get a shopping cart for a specific user")
     public ShoppingCartDto getShoppingCartForUser(
             Authentication authentication, Pageable pageable
     ) {

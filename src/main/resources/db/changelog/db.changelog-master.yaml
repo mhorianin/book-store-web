@@ -31,3 +31,9 @@ databaseChangeLog:
       file: db/changelog/changes/15-adding-column-cart_item_id-in-shopping_carts-table.yaml
   - include:
       file: db/changelog/changes/16-adding-shopping_carts-for-existing-users.yaml
+  - include:
+      file: db/changelog/changes/17-create-order-item-table.yaml
+  - include:
+      file: db/changelog/changes/18-create-order-table.yaml
+  - include:
+      file: db/changelog/changes/19-adding-foreign-keys-to-order-item-table.yaml
