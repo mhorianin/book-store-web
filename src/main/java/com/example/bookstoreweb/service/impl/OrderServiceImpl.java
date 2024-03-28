@@ -11,6 +11,7 @@ import com.example.bookstoreweb.model.CartItem;
 import com.example.bookstoreweb.model.Order;
 import com.example.bookstoreweb.model.OrderItem;
 import com.example.bookstoreweb.model.ShoppingCart;
+import com.example.bookstoreweb.repository.OrderItemRepository;
 import com.example.bookstoreweb.repository.OrderRepository;
 import com.example.bookstoreweb.repository.ShoppingCartRepository;
 import com.example.bookstoreweb.service.OrderService;
@@ -22,11 +23,13 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
     private final ShoppingCartRepository shoppingCartRepository;
@@ -40,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public OrderResponseDto create(String email, OrderRequestDto requestDto) {
         UserResponseDto responseDto = userService.getByEmail(email);
@@ -55,22 +59,26 @@ public class OrderServiceImpl implements OrderService {
                         .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
         model.setOrderDate(LocalDateTime.now());
+        Order save = orderRepository.save(model);
         for (CartItem cartItem : shoppingCart.getCartItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setBook(cartItem.getBook());
-            orderItem.setOrder(model);
+            orderItem.setOrder(save);
             orderItem.setPrice(cartItem.getBook().getPrice());
             orderItem.setQuantity(cartItem.getQuantity());
             model.getOrderItems().add(orderItem);
+            orderItemRepository.save(orderItem);
         }
-        return orderMapper.toDto(orderRepository.save(model));
+        return orderMapper.toDto(save);
     }
 
     @Override
-    public OrderResponseDto update(String email, Long id, OrderRequestUpdateDto requestUpdateDto) {
-        Order orderById = findOrderById(email, id);
-        orderMapper.update(orderById, requestUpdateDto);
-        return orderMapper.toDto(orderRepository.save(orderById));
+    public OrderResponseDto update(Long id, OrderRequestUpdateDto requestUpdateDto) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Can't find order by id: " + id)
+        );
+        orderMapper.update(order, requestUpdateDto);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
@@ -89,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
                 .filter(item -> Objects.equals(itemId, item.getId()))
                 .findFirst()
                 .orElseThrow(
-                        () -> new EntityNotFoundException("Can't find order by id: " + orderId)
+                        () -> new EntityNotFoundException("Can't find order by id: " + itemId)
                 ));
     }
 

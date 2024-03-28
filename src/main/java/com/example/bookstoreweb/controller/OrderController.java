@@ -53,14 +53,13 @@ public class OrderController {
     @PatchMapping("/{id}")
     @Operation(summary = "Update order's status",
             description = "Update order's status")
-    public OrderResponseDto update(Authentication authentication, @PathVariable Long id,
+    public OrderResponseDto update(@PathVariable Long id,
                                    @RequestBody @Valid OrderRequestUpdateDto requestUpdateDto) {
-        User user = (User) authentication.getPrincipal();
-        return orderService.update(user.getEmail(), id, requestUpdateDto);
+        return orderService.update(id, requestUpdateDto);
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/{orderId}/items")
+    @GetMapping("/{id}/items")
     @Operation(summary = "Get all order items for user",
             description = "Get a list of all order items for a specific user's order")
     public List<OrderItemDto> getAllItemsByOrderId(Authentication authentication,

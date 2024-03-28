@@ -12,7 +12,7 @@ public interface OrderService {
 
     OrderResponseDto create(String email, OrderRequestDto requestDto);
 
-    OrderResponseDto update(String email, Long id, OrderRequestUpdateDto requestUpdateDto);
+    OrderResponseDto update(Long id, OrderRequestUpdateDto requestUpdateDto);
 
     List<OrderItemDto> findAllItemsByOrderId(String email, Long orderId, Pageable pageable);
 

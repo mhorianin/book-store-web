@@ -51,4 +51,11 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new RuntimeException("Can't find user by email:" + email));
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("Can't find user by email:" + email)
+        );
+    }
 }
