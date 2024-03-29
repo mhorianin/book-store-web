@@ -10,12 +10,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "order_item")
+@NoArgsConstructor
+@Table(name = "order_items")
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,4 +32,10 @@ public class OrderItem {
     private int quantity;
     @Column(nullable = false)
     private BigDecimal price;
+
+    public OrderItem(CartItem cartItem) {
+        this.book = cartItem.getBook();
+        this.quantity = cartItem.getQuantity();
+        this.price = cartItem.getBook().getPrice();
+    }
 }

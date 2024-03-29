@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -26,6 +27,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Setter
 @SQLDelete(sql = "UPDATE orders SET is_deleted = TRUE WHERE id = ?")
 @SQLRestriction("is_deleted = FALSE")
+@NoArgsConstructor
 @Table(name = "orders")
 public class Order {
     @Id
@@ -49,6 +51,16 @@ public class Order {
     @Column(name = "is_deleted",
             nullable = false)
     private boolean isDeleted;
+
+    public Order(ShoppingCart shoppingCart) {
+        this.user = shoppingCart.getUser();
+        this.status = Status.PENDING;
+        this.total = shoppingCart.getCartItems().stream()
+                .map(cartItem -> cartItem.getBook().getPrice()
+                        .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.orderDate = LocalDateTime.now();
+    }
 
     public enum Status {
         DELIVERED,

@@ -39,3 +39,5 @@ databaseChangeLog:
       file: db/changelog/changes/19-adding-foreign-keys-to-order-item-table.yaml
   #- include:
   #   file: db/changelog/changes/20-change-column-in-order-table.yaml
+  - include:
+      file: db/changelog/changes/21-rename-order-item-table.yaml

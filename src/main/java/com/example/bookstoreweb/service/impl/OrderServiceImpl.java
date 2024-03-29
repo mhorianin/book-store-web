@@ -11,20 +11,17 @@ import com.example.bookstoreweb.model.CartItem;
 import com.example.bookstoreweb.model.Order;
 import com.example.bookstoreweb.model.OrderItem;
 import com.example.bookstoreweb.model.ShoppingCart;
-import com.example.bookstoreweb.model.User;
 import com.example.bookstoreweb.repository.OrderItemRepository;
 import com.example.bookstoreweb.repository.OrderRepository;
 import com.example.bookstoreweb.repository.ShoppingCartRepository;
-import com.example.bookstoreweb.repository.UserRepository;
 import com.example.bookstoreweb.service.OrderService;
 import com.example.bookstoreweb.service.UserService;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +30,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
-    private final UserRepository userRepository;
     private final ShoppingCartRepository shoppingCartRepository;
 
     @Override
@@ -45,32 +41,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderResponseDto create(String email, OrderRequestDto requestDto) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("Can't find user by email:" + email)
-        );
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(user.getId())
+        UserResponseDto responseDto = userService.getByEmail(email);
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(responseDto.getId())
                 .orElseThrow(() -> new RuntimeException("Can't find shopping cart"));
-
-        Order order = orderMapper.toModel(requestDto);
-        order.setUser(user);
-        order.setStatus(Order.Status.PENDING);
-        order.setTotal(shoppingCart.getCartItems().stream()
-                .map(cartItem -> cartItem.getBook().getPrice()
-                        .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        order.setOrderDate(LocalDateTime.now());
-        Order save = orderRepository.save(order);
+        Order order = new Order(shoppingCart);
+        order.setShippingAddress(requestDto.shippingAddress());
+        orderRepository.save(order);
         for (CartItem cartItem : shoppingCart.getCartItems()) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setBook(cartItem.getBook());
-            orderItem.setOrder(save);
-            orderItem.setPrice(cartItem.getBook().getPrice());
-            orderItem.setQuantity(cartItem.getQuantity());
+            OrderItem orderItem = new OrderItem(cartItem);
+            orderItem.setOrder(order);
             order.getOrderItems().add(orderItem);
             orderItemRepository.save(orderItem);
         }
-        return orderMapper.toDto(save);
+        return orderMapper.toDto(order);
     }
 
     @Override
