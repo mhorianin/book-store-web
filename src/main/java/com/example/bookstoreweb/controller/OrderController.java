@@ -36,7 +36,7 @@ public class OrderController {
             description = "Create new order and add shipping address")
     public OrderResponseDto createOrder(Authentication authentication,
                                         @RequestBody @Valid OrderRequestDto requestDto) {
-        return orderService.create(getUser(authentication).getEmail(), requestDto);
+        return orderService.create(getUser(authentication), requestDto);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -44,7 +44,7 @@ public class OrderController {
     @Operation(summary = "Get all orders for user",
             description = "Get a list of all orders for a specific user")
     public List<OrderResponseDto> getAllOrders(Authentication authentication, Pageable pageable) {
-        return orderService.findAllOrdersByUser(getUser(authentication).getEmail(), pageable);
+        return orderService.findAllOrdersByUser(getUser(authentication), pageable);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -63,7 +63,7 @@ public class OrderController {
     public List<OrderItemDto> getAllItemsByOrderId(Authentication authentication,
                                                    @PathVariable Long id,
                                                    Pageable pageable) {
-        return orderService.findAllItemsByOrderId(getUser(authentication).getEmail(), id, pageable);
+        return orderService.findAllItemsByOrderId(getUser(authentication), id, pageable);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -72,11 +72,12 @@ public class OrderController {
             description = "Get order item by id for a specific user's order")
     public OrderItemDto getItemById(Authentication authentication, @PathVariable Long orderId,
                                     @PathVariable Long itemId) {
-        return orderService.findItemByIdByOrderId(getUser(authentication).getEmail(),
+        return orderService.findItemByIdByOrderId(getUser(authentication),
                 orderId, itemId);
     }
 
-    private User getUser(Authentication authentication) {
-        return (User) authentication.getPrincipal();
+    private String getUser(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return user.getEmail();
     }
 }

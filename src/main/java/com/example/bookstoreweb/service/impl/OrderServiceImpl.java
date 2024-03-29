@@ -11,9 +11,11 @@ import com.example.bookstoreweb.model.CartItem;
 import com.example.bookstoreweb.model.Order;
 import com.example.bookstoreweb.model.OrderItem;
 import com.example.bookstoreweb.model.ShoppingCart;
+import com.example.bookstoreweb.model.User;
 import com.example.bookstoreweb.repository.OrderItemRepository;
 import com.example.bookstoreweb.repository.OrderRepository;
 import com.example.bookstoreweb.repository.ShoppingCartRepository;
+import com.example.bookstoreweb.repository.UserRepository;
 import com.example.bookstoreweb.service.OrderService;
 import com.example.bookstoreweb.service.UserService;
 import java.math.BigDecimal;
@@ -23,7 +25,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,41 +33,41 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final ShoppingCartRepository shoppingCartRepository;
 
     @Override
     public List<OrderResponseDto> findAllOrdersByUser(String email, Pageable pageable) {
         UserResponseDto responseDto = userService.getByEmail(email);
-        return orderRepository.findAllByUserId(responseDto.getId())
-                .stream()
+        return orderRepository.findAllByUserId(responseDto.getId()).stream()
                 .map(orderMapper::toDto)
                 .toList();
     }
 
-    @Transactional
     @Override
     public OrderResponseDto create(String email, OrderRequestDto requestDto) {
-        UserResponseDto responseDto = userService.getByEmail(email);
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(responseDto.getId())
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("Can't find user by email:" + email)
+        );
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Can't find shopping cart"));
 
-        Order model = orderMapper.toModel(requestDto);
-        model.setUser(shoppingCart.getUser());
-        model.setStatus(Order.Status.PENDING);
-        model.setTotal(shoppingCart.getCartItems()
-                .stream()
+        Order order = orderMapper.toModel(requestDto);
+        order.setUser(user);
+        order.setStatus(Order.Status.PENDING);
+        order.setTotal(shoppingCart.getCartItems().stream()
                 .map(cartItem -> cartItem.getBook().getPrice()
                         .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-        model.setOrderDate(LocalDateTime.now());
-        Order save = orderRepository.save(model);
+        order.setOrderDate(LocalDateTime.now());
+        Order save = orderRepository.save(order);
         for (CartItem cartItem : shoppingCart.getCartItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setBook(cartItem.getBook());
             orderItem.setOrder(save);
             orderItem.setPrice(cartItem.getBook().getPrice());
             orderItem.setQuantity(cartItem.getQuantity());
-            model.getOrderItems().add(orderItem);
+            order.getOrderItems().add(orderItem);
             orderItemRepository.save(orderItem);
         }
         return orderMapper.toDto(save);
