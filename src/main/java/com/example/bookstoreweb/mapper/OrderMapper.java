@@ -16,7 +16,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(config = MapperConfig.class)
 public interface OrderMapper {
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "orderItems", source = "orderItems")
+    //@Mapping(target = "orderItems", source = "orderItems")
     OrderResponseDto toDto(Order order);
 
     default List<OrderItemDto> mapOrderItems(Set<OrderItem> orderItems) {

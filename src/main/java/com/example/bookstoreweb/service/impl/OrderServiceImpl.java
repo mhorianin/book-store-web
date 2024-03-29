@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final ShoppingCartRepository shoppingCartRepository;
 
     @Override
-    public List<OrderResponseDto> findAllOrders(String email, Pageable pageable) {
+    public List<OrderResponseDto> findAllOrdersByUser(String email, Pageable pageable) {
         UserResponseDto responseDto = userService.getByEmail(email);
         return orderRepository.findAllByUserId(responseDto.getId())
                 .stream()
@@ -90,10 +90,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderItemDto findItemById(String email, Long orderId, Long itemId) {
+    public OrderItemDto findItemByIdByOrderId(String email, Long orderId, Long itemId) {
         Order orderById = findOrderById(email, orderId);
-        return orderMapper.toOrderItemDto(orderById.getOrderItems()
-                .stream()
+        return orderMapper.toOrderItemDto(orderById.getOrderItems().stream()
                 .filter(item -> Objects.equals(itemId, item.getId()))
                 .findFirst()
                 .orElseThrow(

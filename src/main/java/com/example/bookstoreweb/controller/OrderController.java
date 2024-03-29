@@ -36,8 +36,7 @@ public class OrderController {
             description = "Create new order and add shipping address")
     public OrderResponseDto createOrder(Authentication authentication,
                                         @RequestBody @Valid OrderRequestDto requestDto) {
-        User user = (User) authentication.getPrincipal();
-        return orderService.create(user.getEmail(), requestDto);
+        return orderService.create(getUser(authentication).getEmail(), requestDto);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -45,15 +44,14 @@ public class OrderController {
     @Operation(summary = "Get all orders for user",
             description = "Get a list of all orders for a specific user")
     public List<OrderResponseDto> getAllOrders(Authentication authentication, Pageable pageable) {
-        User user = (User) authentication.getPrincipal();
-        return orderService.findAllOrders(user.getEmail(), pageable);
+        return orderService.findAllOrdersByUser(getUser(authentication).getEmail(), pageable);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PatchMapping("/{id}")
     @Operation(summary = "Update order's status",
             description = "Update order's status")
-    public OrderResponseDto update(@PathVariable Long id,
+    public OrderResponseDto updateOrder(@PathVariable Long id,
                                    @RequestBody @Valid OrderRequestUpdateDto requestUpdateDto) {
         return orderService.update(id, requestUpdateDto);
     }
@@ -65,8 +63,7 @@ public class OrderController {
     public List<OrderItemDto> getAllItemsByOrderId(Authentication authentication,
                                                    @PathVariable Long id,
                                                    Pageable pageable) {
-        User user = (User) authentication.getPrincipal();
-        return orderService.findAllItemsByOrderId(user.getEmail(), id, pageable);
+        return orderService.findAllItemsByOrderId(getUser(authentication).getEmail(), id, pageable);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -75,7 +72,11 @@ public class OrderController {
             description = "Get order item by id for a specific user's order")
     public OrderItemDto getItemById(Authentication authentication, @PathVariable Long orderId,
                                     @PathVariable Long itemId) {
-        User user = (User) authentication.getPrincipal();
-        return orderService.findItemById(user.getEmail(), orderId, itemId);
+        return orderService.findItemByIdByOrderId(getUser(authentication).getEmail(),
+                orderId, itemId);
+    }
+
+    private User getUser(Authentication authentication) {
+        return (User) authentication.getPrincipal();
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
-    List<OrderResponseDto> findAllOrders(String email, Pageable pageable);
+    List<OrderResponseDto> findAllOrdersByUser(String email, Pageable pageable);
 
     OrderResponseDto create(String email, OrderRequestDto requestDto);
 
@@ -16,5 +16,5 @@ public interface OrderService {
 
     List<OrderItemDto> findAllItemsByOrderId(String email, Long orderId, Pageable pageable);
 
-    OrderItemDto findItemById(String email, Long orderId, Long itemId);
+    OrderItemDto findItemByIdByOrderId(String email, Long orderId, Long itemId);
 }
