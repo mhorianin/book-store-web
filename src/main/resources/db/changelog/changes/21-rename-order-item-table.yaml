@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename_order_item_table
+      author: mhorianin
+      changes:
+        - renameTable:
+            oldTableName: order_item
+            newTableName: order_items

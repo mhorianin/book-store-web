@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove_unique_constraint_from_status_column
+      author: mhorianin
+      changes:
+        - dropUniqueConstraint:
+            constraintName: status
+            tableName: orders
+            columnName: status
