@@ -24,11 +24,11 @@ services:
     build: .
     env_file: ./.env
     ports:
-      - ${MYSQLDB_LOCAL_PORT}:${MYSQLDB_DOCKER_PORT}
+      - ${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}
       - ${DEBUG_PORT}:${DEBUG_PORT}
     environment:
       SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url" : "jdbc:mysql://mysqldb:${MYSQLDB_DOCKER_PORT}/{$MYSQLDB_DATABASE}",
+        "spring.datasource.url" : "jdbc:mysql://mysqldb:${MYSQLDB_DOCKER_PORT}/{$MYSQLDB_DATABASE}/?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC",
         "spring.datasource.username" : "${MYSQLDB_ROOT_USER}",
         "spring.datasource.password" : "${MYSQLDB_ROOT_PASSWORD}",
         "spring.datasource.driver-class-name" : "com.mysql.cj.jdbc.Driver"
