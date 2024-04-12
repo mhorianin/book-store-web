@@ -138,13 +138,13 @@ class BookServiceImplTest {
     public void findAllBooksByCategoryId_ValidCategoryId_Success() {
         BookDtoWithoutCategoryIds expected = createBookDtoWithoutCategoryIds();
 
-        Mockito.when(bookRepository.findAllByCategoryId(ID)).thenReturn(List.of(book));
+        Mockito.when(bookRepository.findAllByCategoriesId(ID)).thenReturn(List.of(book));
         Mockito.when(bookMapper.toDtoWithoutCategories(book)).thenReturn(expected);
 
         List<BookDtoWithoutCategoryIds> actual = bookService.findAllByCategoryId(ID);
 
         Assertions.assertEquals(expected, actual.get(0));
-        Mockito.verify(bookRepository, Mockito.times(1)).findAllByCategoryId(ID);
+        Mockito.verify(bookRepository, Mockito.times(1)).findAllByCategoriesId(ID);
     }
 
     private CreateBookRequestDto createBookRequestDto() {

@@ -23,7 +23,7 @@ class BookRepositoryTest {
     @Sql(scripts = "classpath:database/remove-book-from-books-table.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoryId_ValidId_ReturnOneBook() {
-        List<Book> books = bookRepository.findAllByCategoryId(1L);
+        List<Book> books = bookRepository.findAllByCategoriesId(1L);
 
         Assertions.assertEquals(1, books.size());
         Assertions.assertEquals("White Fang", books.get(0).getTitle());
