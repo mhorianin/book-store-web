@@ -28,4 +28,16 @@ class BookRepositoryTest {
         Assertions.assertEquals(1, books.size());
         Assertions.assertEquals("White Fang", books.get(0).getTitle());
     }
+
+    @Test
+    @DisplayName("Find all books by category id if no book has that category")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-book-from-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findAllByCategoryId_ReturnEmpty() {
+        List<Book> books = bookRepository.findAllByCategoriesId(5L);
+
+        Assertions.assertEquals(0, books.size());
+    }
 }
