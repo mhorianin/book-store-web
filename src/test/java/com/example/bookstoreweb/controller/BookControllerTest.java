@@ -70,7 +70,7 @@ class BookControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @DisplayName("Create a new book")
     @Sql(scripts = "classpath:database/remove-saved-book-from-db.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
