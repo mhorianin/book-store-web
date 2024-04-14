@@ -6,10 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.bookstoreweb.dto.book.BookDto;
-import com.example.bookstoreweb.dto.book.CreateBookRequestDto;
+import com.example.bookstoreweb.dto.category.CategoryDto;
+import com.example.bookstoreweb.dto.category.CategoryRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,20 +30,19 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class BookControllerTest {
+class CategoryControllerTest {
     protected static MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeAll
     static void beforeAll(@Autowired DataSource dataSource,
-            @Autowired WebApplicationContext applicationContext
+                          @Autowired WebApplicationContext applicationContext
     ) throws SQLException {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(applicationContext)
@@ -54,7 +52,7 @@ class BookControllerTest {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(connection,
-                    new ClassPathResource("database/add-book-to-books-table.sql"));
+                    new ClassPathResource("database/add-category-for-book.sql"));
         }
     }
 
@@ -74,55 +72,53 @@ class BookControllerTest {
 
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
-    @DisplayName("Get a list of all books")
-    void findAllBook_Success() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/books"))
+    @DisplayName("Get a list of all categories")
+    void findAllCategories_Success() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/categories"))
                 .andExpect(status().isOk())
                 .andReturn();
-        List<BookDto> expected = new ArrayList<>();
-        expected.add(createBookDto());
-        BookDto[] actual = objectMapper.readValue(result.getResponse()
-                .getContentAsString(), BookDto[].class);
+        List<CategoryDto> expected = new ArrayList<>();
+        expected.add(createCategoryDto());
+        CategoryDto[] actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), CategoryDto[].class);
         EqualsBuilder.reflectionEquals(expected, actual, "id");
     }
 
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
-    @DisplayName("Find book by id")
-    void findBookById_ValidId_Success() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/books/1")
+    @DisplayName("Find category by id")
+    void findCategoryById_ValidId_Success() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/categories/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        BookDto actual = objectMapper.readValue(result.getResponse()
-                .getContentAsString(), BookDto.class);
+        CategoryDto actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), CategoryDto.class);
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals("White Fang", actual.getTitle());
+        Assertions.assertEquals("Detective", actual.getName());
     }
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    @DisplayName("Create a new book")
-    @Sql(scripts = "classpath:database/remove-saved-book-from-db.sql",
+    @DisplayName("Create a new category")
+    @Sql(scripts = "classpath:database/remove-saved-category-from-db.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void createBook_ValidRequestDto_Success() throws Exception {
-        CreateBookRequestDto requestDto = saveNewBookRequestDto();
-        BookDto expected = new BookDto();
+    void createCategory_ValidRequestDto_Success() throws Exception {
+        CategoryRequestDto requestDto = saveCategoryRequestDto();
+        CategoryDto expected = new CategoryDto();
         expected.setId(2L);
-        expected.setTitle(requestDto.getTitle());
-        expected.setAuthor(requestDto.getAuthor());
-        expected.setPrice(requestDto.getPrice());
-        expected.setIsbn(requestDto.getIsbn());
+        expected.setName(requestDto.name());
+        expected.setDescription(requestDto.description());
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult mvcResult = mockMvc.perform(post("/api/books")
+        MvcResult mvcResult = mockMvc.perform(post("/api/categories")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        BookDto actual = objectMapper.readValue(mvcResult.getResponse()
-                .getContentAsString(), BookDto.class);
+        CategoryDto actual = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(), CategoryDto.class);
 
         Assertions.assertNotNull(actual);
         EqualsBuilder.reflectionEquals(expected, actual, "id");
@@ -130,28 +126,14 @@ class BookControllerTest {
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    @DisplayName("Return 400-th status when invalid data is entered")
-    void createBook_InvalidRequestDto_Failed() throws Exception {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("White Fang");
-        requestDto.setIsbn("12587946831871");
-        String jsonRequest = objectMapper.writeValueAsString(requestDto);
-
-        ResultActions resultActions = mockMvc.perform(post("/api/books")
-                        .content(jsonRequest)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    @DisplayName("Update a book by id")
+    @DisplayName("Update a category by id")
     void updateBook_ValidId_Success() throws Exception {
-        CreateBookRequestDto requestDto = createBookRequestDto();
-        requestDto.setTitle("Black Fang");
+        CategoryRequestDto requestDto = new CategoryRequestDto("Fantasy", "Fantasy world");
 
-        BookDto expected = createBookDto();
-        expected.setTitle(requestDto.getTitle());
+        CategoryDto expected = new CategoryDto();
+        expected.setId(1L);
+        expected.setName(requestDto.name());
+        expected.setDescription(requestDto.description());
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
@@ -161,8 +143,8 @@ class BookControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        BookDto actual = objectMapper.readValue(mvcResult.getResponse()
-                .getContentAsString(), BookDto.class);
+        CategoryDto actual = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(), CategoryDto.class);
 
         Assertions.assertNotNull(actual);
         EqualsBuilder.reflectionEquals(expected, actual, "id");
@@ -170,41 +152,26 @@ class BookControllerTest {
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    @DisplayName("Delete a book by id")
-    void deleteBook_ValidId_Success() throws Exception {
-        mockMvc.perform(delete("/api/books/1").contentType(MediaType.APPLICATION_JSON))
+    @DisplayName("Delete a category by id")
+    void deleteCategory_ValidId_Success() throws Exception {
+        mockMvc.perform(delete("/api/categories/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
     }
 
-    private CreateBookRequestDto createBookRequestDto() {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("White Fang");
-        requestDto.setAuthor("Jack London");
-        requestDto.setPrice(BigDecimal.valueOf(299));
-        requestDto.setIsbn("12587946831871");
-        requestDto.setCategories(List.of(1L));
-        return requestDto;
+    private CategoryRequestDto createCategoryRequestDto() {
+        return new CategoryRequestDto("Detective", "Adventures of detectives");
     }
 
-    private BookDto createBookDto() {
-        BookDto bookDto = new BookDto();
-        bookDto.setId(1L);
-        bookDto.setTitle("White Fang");
-        bookDto.setAuthor("Jack London");
-        bookDto.setPrice(BigDecimal.valueOf(299));
-        bookDto.setIsbn("12587946831871");
-        bookDto.setCategoryIds(List.of(1L));
-        return bookDto;
+    private CategoryDto createCategoryDto() {
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(1L);
+        categoryDto.setName("Detective");
+        categoryDto.setDescription("Adventures of detectives");
+        return categoryDto;
     }
 
-    private CreateBookRequestDto saveNewBookRequestDto() {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Sleep");
-        requestDto.setAuthor("Taras Shevchenko");
-        requestDto.setPrice(BigDecimal.valueOf(359));
-        requestDto.setIsbn("125876332278624");
-        requestDto.setCategories(List.of(1L));
-        return requestDto;
+    private CategoryRequestDto saveCategoryRequestDto() {
+        return new CategoryRequestDto("Verse", "Ukrainian poems");
     }
 }

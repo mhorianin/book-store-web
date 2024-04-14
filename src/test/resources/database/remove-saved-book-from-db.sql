@@ -1,1 +1,1 @@
-DELETE FROM books WHERE title = 'White Fang';
+DELETE FROM books WHERE title = 'Sleep';

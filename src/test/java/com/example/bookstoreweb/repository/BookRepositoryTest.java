@@ -20,7 +20,7 @@ class BookRepositoryTest {
     @DisplayName("Find all books by category id")
     @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-book-from-books-table.sql",
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoryId_ValidId_ReturnOneBook() {
         List<Book> books = bookRepository.findAllByCategoriesId(1L);
@@ -33,7 +33,7 @@ class BookRepositoryTest {
     @DisplayName("Find all books by category id if no book has that category")
     @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-book-from-books-table.sql",
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoryId_ReturnEmpty() {
         List<Book> books = bookRepository.findAllByCategoriesId(5L);
