@@ -70,8 +70,8 @@ class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Create a new book")
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/remove-saved-book-from-db.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_ValidRequestDto_Success() throws Exception {
