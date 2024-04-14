@@ -147,6 +147,7 @@ class BookControllerTest {
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a book by id")
     void updateBook_ValidId_Success() throws Exception {
+        Long bookId = 1L;
         CreateBookRequestDto requestDto = createBookRequestDto();
         requestDto.setTitle("Black Fang");
 
@@ -155,7 +156,7 @@ class BookControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult mvcResult = mockMvc.perform(put("/api/books/1")
+        MvcResult mvcResult = mockMvc.perform(put("/api/books/{id}", bookId)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

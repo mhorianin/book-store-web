@@ -127,17 +127,18 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a category by id")
-    void updateBook_ValidId_Success() throws Exception {
+    void updateCategory_ValidId_Success() throws Exception {
+        Long categoryId = 1L;
         CategoryRequestDto requestDto = new CategoryRequestDto("Fantasy", "Fantasy world");
 
         CategoryDto expected = new CategoryDto();
-        expected.setId(1L);
+        expected.setId(categoryId);
         expected.setName(requestDto.name());
         expected.setDescription(requestDto.description());
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult mvcResult = mockMvc.perform(put("/api/books/1")
+        MvcResult mvcResult = mockMvc.perform(put("/api/categories/{id}", categoryId)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
