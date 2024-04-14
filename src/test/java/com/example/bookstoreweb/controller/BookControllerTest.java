@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.bookstoreweb.dto.book.BookDto;
+import com.example.bookstoreweb.dto.book.BookDtoWithoutCategoryIds;
 import com.example.bookstoreweb.dto.book.CreateBookRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
@@ -126,6 +127,20 @@ class BookControllerTest {
 
         Assertions.assertNotNull(actual);
         EqualsBuilder.reflectionEquals(expected, actual, "id");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"USER"})
+    @DisplayName("Find all books by category id")
+    void findBooksByCategoryId_ValidCategoryId_Success() throws Exception {
+        MvcResult result = mockMvc.perform(get("/categories/1/books")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        BookDtoWithoutCategoryIds[] actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), BookDtoWithoutCategoryIds[].class);
+        Assertions.assertEquals(1, actual.length);
+        Assertions.assertEquals(actual[0].getTitle(), "White Fang");
     }
 
     @Test
