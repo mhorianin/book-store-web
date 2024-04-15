@@ -132,6 +132,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find all books by category id")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findBooksByCategoryId_ValidCategoryId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/1/books")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -161,6 +165,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a book by id")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_ValidId_Success() throws Exception {
         Long bookId = 1L;
         CreateBookRequestDto requestDto = createBookRequestDto();
