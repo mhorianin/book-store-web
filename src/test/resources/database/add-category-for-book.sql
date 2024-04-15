@@ -1,1 +1,2 @@
-INSERT INTO categories (id, name, description) VALUES (1, "Detective", "Adventures of detectives");
+INSERT INTO categories (id, name, description, is_deleted)
+VALUES (1, 'Detective', 'Adventures of detectives', false);
