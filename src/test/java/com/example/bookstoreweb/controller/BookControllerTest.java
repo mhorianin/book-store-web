@@ -133,7 +133,7 @@ class BookControllerTest {
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find all books by category id")
     void findBooksByCategoryId_ValidCategoryId_Success() throws Exception {
-        MvcResult result = mockMvc.perform(get("/categories/1/books")
+        MvcResult result = mockMvc.perform(get("/api/categories/1/books")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
