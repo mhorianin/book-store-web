@@ -40,6 +40,11 @@ import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookControllerTest {
     protected static MockMvc mockMvc;
+    private static final String SCRIPT_FOR_ADD_DATA_IN_DB =
+            "classpath:database/add-book-to-books-table.sql";
+    private static final String SCRIPT_FOR_REMOVE_DATA_IN_DB =
+            "classpath:database/remove-data-from-all-tables.sql";
+    private static final String URL = "/api/books";
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -76,12 +81,12 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Get a list of all books")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllBook_Success() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/books"))
+        MvcResult result = mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andReturn();
         List<BookDto> expected = new ArrayList<>();
@@ -94,9 +99,9 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find book by id")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findBookById_ValidId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/books/1")
@@ -114,7 +119,7 @@ class BookControllerTest {
     @DisplayName("Create a new book")
     @Sql(scripts = "classpath:database/add-category-for-book.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_ValidRequestDto_Success() throws Exception {
         CreateBookRequestDto requestDto = createBookRequestDto();
@@ -126,7 +131,7 @@ class BookControllerTest {
         expected.setIsbn(requestDto.getIsbn());
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult mvcResult = mockMvc.perform(post("/api/books")
+        MvcResult mvcResult = mockMvc.perform(post(URL)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -142,9 +147,9 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find all books by category id")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findBooksByCategoryId_ValidCategoryId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/1/books")
@@ -166,7 +171,7 @@ class BookControllerTest {
         requestDto.setIsbn("12587946831871");
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        ResultActions resultActions = mockMvc.perform(post("/api/books")
+        ResultActions resultActions = mockMvc.perform(post(URL)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
@@ -175,9 +180,9 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a book by id")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_ValidId_Success() throws Exception {
         Long bookId = 1L;

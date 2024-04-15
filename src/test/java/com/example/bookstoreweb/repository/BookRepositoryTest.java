@@ -13,14 +13,18 @@ import org.springframework.test.context.jdbc.Sql;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookRepositoryTest {
+    private static final String SCRIPT_FOR_ADD_DATA_IN_DB =
+            "classpath:database/add-book-to-books-table.sql";
+    private static final String SCRIPT_FOR_REMOVE_DATA_IN_DB =
+            "classpath:database/remove-data-from-all-tables.sql";
     @Autowired
     private BookRepository bookRepository;
 
     @Test
     @DisplayName("Find all books by category id")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoryId_ValidId_ReturnOneBook() {
         List<Book> books = bookRepository.findAllByCategoriesId(1L);
@@ -31,9 +35,9 @@ class BookRepositoryTest {
 
     @Test
     @DisplayName("Find all books by category id if no book has that category")
-    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoryId_ReturnEmpty() {
         List<Book> books = bookRepository.findAllByCategoriesId(5L);

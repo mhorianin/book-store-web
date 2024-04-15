@@ -37,6 +37,12 @@ import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CategoryControllerTest {
     protected static MockMvc mockMvc;
+
+    private static final String SCRIPT_FOR_ADD_CATEGORY_IN_DB =
+            "classpath:database/add-category-for-book.sql";
+    private static final String SCRIPT_FOR_REMOVE_DATA_IN_DB =
+            "classpath:database/remove-data-from-all-tables.sql";
+    private static final String URL = "/api/categories";
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -73,12 +79,12 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Get a list of all categories")
-    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_CATEGORY_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllCategories_Success() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/categories"))
+        MvcResult result = mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andReturn();
         List<CategoryDto> expected = new ArrayList<>();
@@ -91,9 +97,9 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find category by id")
-    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_CATEGORY_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findCategoryById_ValidId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/1")
@@ -119,7 +125,7 @@ class CategoryControllerTest {
         expected.setDescription(requestDto.description());
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult mvcResult = mockMvc.perform(post("/api/categories")
+        MvcResult mvcResult = mockMvc.perform(post(URL)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -135,9 +141,9 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a category by id")
-    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+    @Sql(scripts = SCRIPT_FOR_ADD_CATEGORY_IN_DB,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+    @Sql(scripts = SCRIPT_FOR_REMOVE_DATA_IN_DB,
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateCategory_ValidId_Success() throws Exception {
         Long categoryId = 1L;

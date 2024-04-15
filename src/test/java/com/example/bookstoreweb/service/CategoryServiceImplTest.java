@@ -43,7 +43,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Save category with valid data")
-    public void saveCategory_ValidData_Success() {
+    void saveCategory_ValidData_Success() {
         CategoryRequestDto requestDto = createCategoryRequestDto();
 
         CategoryDto expected = createCategoryDto();
@@ -60,7 +60,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Find all categories in database")
-    public void findAllCategories_ValidPageable_Success() {
+    void findAllCategories_ValidPageable_Success() {
         List<Category> categories = new ArrayList<>();
         categories.add(category);
 
@@ -81,7 +81,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Check for an exception if the category id is invalid")
-    public void findCategoryById_InvalidId_Failed() {
+    void findCategoryById_InvalidId_Failed() {
         Mockito.when(categoryRepository.findById(ID)).thenReturn(Optional.empty());
         Assertions.assertThrows(EntityNotFoundException.class,
                 () -> categoryService.getById(ID));
@@ -90,7 +90,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Find category by valid id")
-    public void findCategoryById_ValidId_Success() {
+    void findCategoryById_ValidId_Success() {
         Mockito.when(categoryRepository.findById(ID)).thenReturn(Optional.of(category));
         CategoryDto expected = createCategoryDto();
         Mockito.when(categoryMapper.toDto(category)).thenReturn(expected);
@@ -101,7 +101,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("Update category with valid id and data")
-    public void updateCategory_ValidIdAndData_Success() {
+    void updateCategory_ValidIdAndData_Success() {
         Category newCategory = category;
         newCategory.setDescription("The investigation of Sherlock Holmes");
 

@@ -50,7 +50,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Save book with valid data")
-    public void saveBook_ValidData_Success() {
+    void saveBook_ValidData_Success() {
         CreateBookRequestDto requestDto = createBookRequestDto();
 
         BookDto expected = createBookDto();
@@ -67,7 +67,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Find all books in database")
-    public void findAllBooks_ValidPageable_Success() {
+    void findAllBooks_ValidPageable_Success() {
         List<Book> books = new ArrayList<>();
         books.add(book);
 
@@ -87,7 +87,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Check for an exception if the book id is invalid")
-    public void findBookById_InvalidId_Failed() {
+    void findBookById_InvalidId_Failed() {
         Mockito.when(bookRepository.findById(ID)).thenReturn(Optional.empty());
         Assertions.assertThrows(EntityNotFoundException.class,
                 () -> bookService.findById(ID));
@@ -96,7 +96,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Find book by valid id")
-    public void findBookById_ValidId_Success() {
+    void findBookById_ValidId_Success() {
         Mockito.when(bookRepository.findById(ID)).thenReturn(Optional.of(book));
         BookDto expected = createBookDto();
         Mockito.when(bookMapper.toDto(book)).thenReturn(expected);
@@ -107,7 +107,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Update book with valid id and data")
-    public void updateBook_ValidIdAndData_Success() {
+    void updateBook_ValidIdAndData_Success() {
         Book newBook = book;
         newBook.setTitle("Black Fang");
         newBook.setPrice(BigDecimal.valueOf(369));
@@ -135,7 +135,7 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("Find all books by id category")
-    public void findAllBooksByCategoryId_ValidCategoryId_Success() {
+    void findAllBooksByCategoryId_ValidCategoryId_Success() {
         BookDtoWithoutCategoryIds expected = createBookDtoWithoutCategoryIds();
 
         Mockito.when(bookRepository.findAllByCategoriesId(ID)).thenReturn(List.of(book));
