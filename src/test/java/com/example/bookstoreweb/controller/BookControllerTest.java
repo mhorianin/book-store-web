@@ -55,7 +55,7 @@ class BookControllerTest {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(connection,
-                    new ClassPathResource("database/add-book-to-books-table.sql"));
+                    new ClassPathResource("database/remove-data-from-all-tables.sql"));
         }
     }
 
@@ -76,6 +76,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Get a list of all books")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllBook_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
@@ -90,6 +94,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find book by id")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findBookById_ValidId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/books/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -104,12 +112,14 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Create a new book")
-    @Sql(scripts = "classpath:database/remove-saved-book-from-db.sql",
+    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_ValidRequestDto_Success() throws Exception {
-        CreateBookRequestDto requestDto = saveNewBookRequestDto();
+        CreateBookRequestDto requestDto = createBookRequestDto();
         BookDto expected = new BookDto();
-        expected.setId(2L);
+        expected.setId(1L);
         expected.setTitle(requestDto.getTitle());
         expected.setAuthor(requestDto.getAuthor());
         expected.setPrice(requestDto.getPrice());
@@ -132,6 +142,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find all books by category id")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findBooksByCategoryId_ValidCategoryId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/1/books")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -161,6 +175,10 @@ class BookControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a book by id")
+    @Sql(scripts = "classpath:database/add-book-to-books-table.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_ValidId_Success() throws Exception {
         Long bookId = 1L;
         CreateBookRequestDto requestDto = createBookRequestDto();
@@ -212,15 +230,5 @@ class BookControllerTest {
         bookDto.setIsbn("12587946831871");
         bookDto.setCategoryIds(List.of(1L));
         return bookDto;
-    }
-
-    private CreateBookRequestDto saveNewBookRequestDto() {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Sleep");
-        requestDto.setAuthor("Taras Shevchenko");
-        requestDto.setPrice(BigDecimal.valueOf(359));
-        requestDto.setIsbn("125876332278624");
-        requestDto.setCategories(List.of(1L));
-        return requestDto;
     }
 }

@@ -52,7 +52,7 @@ class CategoryControllerTest {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(connection,
-                    new ClassPathResource("database/add-category-for-book.sql"));
+                    new ClassPathResource("database/remove-data-from-all-tables.sql"));
         }
     }
 
@@ -73,6 +73,10 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Get a list of all categories")
+    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllCategories_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories"))
                 .andExpect(status().isOk())
@@ -87,6 +91,10 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "user", authorities = {"USER"})
     @DisplayName("Find category by id")
+    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findCategoryById_ValidId_Success() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -127,6 +135,10 @@ class CategoryControllerTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DisplayName("Update a category by id")
+    @Sql(scripts = "classpath:database/add-category-for-book.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/remove-data-from-all-tables.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateCategory_ValidId_Success() throws Exception {
         Long categoryId = 1L;
         CategoryRequestDto requestDto = new CategoryRequestDto("Fantasy", "Fantasy world");
@@ -158,10 +170,6 @@ class CategoryControllerTest {
         mockMvc.perform(delete("/api/categories/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn();
-    }
-
-    private CategoryRequestDto createCategoryRequestDto() {
-        return new CategoryRequestDto("Detective", "Adventures of detectives");
     }
 
     private CategoryDto createCategoryDto() {
