@@ -31,14 +31,14 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final BookService bookService;
 
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping
     @Operation(summary = "Get all categories", description = "Get a list of all categories")
     public List<CategoryDto> getAll(Pageable pageable) {
         return categoryService.findAll(pageable);
     }
 
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
     @Operation(summary = "Get a category by id", description = "Get a category by id")
     public CategoryDto getCategoryById(@PathVariable Long id) {
@@ -63,12 +63,12 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a category by id", description = "Delete a category bi id")
+    @Operation(summary = "Delete a category by id", description = "Delete a category by id")
     public void deleteCategory(@PathVariable Long id) {
         categoryService.deleteById(id);
     }
 
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}/books")
     @Operation(summary = "Get all books by category id",
             description = "Get a list of all books by category id")
